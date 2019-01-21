@@ -6,12 +6,10 @@ import pickle as pkl
 import yaml
 
 import chainer
-import chainer.links as L
-from chainer import optimizers, cuda, Variable, serializers
+from chainer import optimizers, cuda, serializers
 import chainer.functions as F
 cp = cuda.cupy
 
-#from param import params
 from preprocess import to_indx
 from model import RelationExtractor
 from cnn import CNN
@@ -29,6 +27,8 @@ word_indx = {}
 label_indx = {}
 Xtr, Ytr, w2v, mol2v = to_indx(params['train_path'], params, word_indx, label_indx, training=True)
 Xte, Yte, _, _ = to_indx(params['test_path'], params, word_indx, label_indx, training=False)
+
+print(mol2v)
 
 params['out_dim'] = len(label_indx)
 model = RelationExtractor(params, w2v, mol2v)
@@ -51,9 +51,7 @@ def train(X, Y):
         model.zerograds()
         x = cp.array(X[sffindx[i:(i+bs) if (i+bs) < n else n]])
         y = cp.array(Y[sffindx[i:(i+bs) if (i+bs) < n else n]])
-
         p = model(x)
-
         loss = F.softmax_cross_entropy(p, y)
         loss.backward()
         optimizer.update()
@@ -72,12 +70,10 @@ def test(X, Y):
         for i in range(0, n, bs):
             x = cp.array(X[i:(i+bs) if (i+bs) < n else n])
             y = cp.array(Y[i:(i+bs) if (i+bs) < n else n])
-
             if params['averaging']:
                 p = average_model(x)
             else:
                 p = model(x)
-
             loss = F.softmax_cross_entropy(p, y)
             losses += cuda.to_cpu(loss.data)
             pred = F.argmax(p, axis=1)
@@ -85,7 +81,7 @@ def test(X, Y):
 
     print('Test : elapsedtime={:.2f} loss={:.2f}'.format(time.time()-start, losses))
     prec, recall, microF = calculate_microF(P, Y, label_indx['negative'])
-    print('  Prec.={:.4f} Recall={:.4f} microF={:.4f}'.format(prec, recall, microF))
+    print('  Precision={:.4f} Recall={:.4f} microF={:.4f}'.format(prec, recall, microF))
 
     return P
 

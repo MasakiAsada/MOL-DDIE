@@ -32,7 +32,6 @@ class CNN(chainer.Chain):
                     out_channels=self.n_filter, ksize=x, pad=(x-1)//2))
 
 
-    #def __call__(self, x, ep, mask):
     def __call__(self, x):
         msl = self.max_sent_len
         w = x[:, :msl]

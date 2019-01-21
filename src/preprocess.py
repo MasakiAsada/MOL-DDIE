@@ -11,7 +11,9 @@ def to_indx(base, params, word_indx, label_indx, training):
     with open(base + '.label', 'r') as f:
         labels = f.read().strip().split('\n')
 
-    if params['mol2v_path'] is not None:
+    if params['mol2v_path'] is None:
+        mol2v_table = None
+    else:
         with open(base + '.dbid', 'r') as f:
             dbids = f.read().strip().split('\n')
         with open(params['dbid_dict_path'], 'rb') as f:
@@ -20,8 +22,6 @@ def to_indx(base, params, word_indx, label_indx, training):
         # Set unknown molecular vector to zero
         dbid_dict['None'] = len(dbid_dict)
         mol2v_table = np.concatenate((mol2v_table, np.zeros((1, mol2v_table.shape[1]))))
-    else:
-        mol2v_table = None
 
     if training:
         # Set paddig term index at 0
@@ -95,11 +95,8 @@ def to_indx(base, params, word_indx, label_indx, training):
 
         if params['mol2v_path'] is not None:
             db1, db2 = dbids[i].split('\t')
-            try:
-                X[i, 3*max_sent_len] = dbid_dict[dbids[i].split('\t')[0]]
-            except:
-                print(dbids[i].split('\t')[0])
-            #X[i, 3*max_sent_len+1] = dbid_dict[dbids[i].split('\t')[1]]
+            X[i, 3*max_sent_len] = dbid_dict[db1]
+            X[i, 3*max_sent_len+1] = dbid_dict[db2]
             
     # Array label
     Y = np.array([label_indx[l] for l in labels]).astype('i')

@@ -16,9 +16,7 @@ class RelationExtractor(chainer.Chain):
                 self.molemb_size = 0
             else:
                 self.molemb_size = mol2v.shape[1]
-                #self.molemb = L.EmbedID(mol2v.shape[0], mol2v.shape[1], initialW=mol2v)
-                self.molemb = L.EmbedID(mol2v.shape[0], mol2v.shape[1], initialW=None)
-            #self.l1 = L.Linear(len(self.cnn.window_size)*self.cnn.n_filter, self.hidden_dim)
+                self.molemb = L.EmbedID(mol2v.shape[0], mol2v.shape[1], initialW=mol2v)
             self.l1 = L.Linear(len(self.cnn.window_size)*self.cnn.n_filter+2*self.molemb_size, self.hidden_dim)
             self.l2 = L.Linear(self.hidden_dim, self.out_dim)
             

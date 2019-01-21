@@ -16,7 +16,7 @@ for i in ${SEMEVAL_TRAIN_DIR}/*.xml; python3 xml2brat.py $i brat_train/`basename
 for i in ${SEMEVAL_TEST_DIR}/*.xml; python3 xml2brat.py $i brat_test/`basename $i .xml`
 ```
 
-## convert brat format to txt
+## convert brat format to instance
 ```
 mkdir txtfiles
 python3 brat2inst.py bratfiles/train instances/train

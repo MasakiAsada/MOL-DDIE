@@ -1,7 +1,7 @@
 mkdir train
 mkdir dev
 ratio=4
-n_db=`ls -1 $SEMEVAL2013_TRAIN/DrugBank/*.xml | wc -l`
+n_db=`ls -1 ${SEMEVAL_TRAIN_DIR}/DrugBank/*.xml | wc -l`
 echo $n_db
 n_db_tr=$((n_db / (ratio+1) * ratio))
 echo $n_db_tr
@@ -17,7 +17,7 @@ do
     fi
 done
 
-n_ml=`ls -1 $SEMEVAL2013_TRAIN/MedLine/*.xml | wc -l`
+n_ml=`ls -1 ${SEMEVAL_TRAIN_DIR}/MedLine/*.xml | wc -l`
 echo $n_ml
 n_ml_tr=$((n_ml / (ratio+1) * ratio))
 echo $n_ml_tr

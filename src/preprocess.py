@@ -1,170 +1,107 @@
-import sys
-import yaml
-from gensim.models.keyedvectors import KeyedVectors
-#from gensim.models import KeyedVectors
-import json
 import numpy as np
+import pickle as pkl
+from gensim.models import KeyedVectors
 
-class Data():
-    def __init__(self, data):
-        self.sentence = data[0]
-        self.label = data[1]
-        self.entity_position = data[2]
-        self.drug_name = data[3]
 
-    def make_develop_data(self):
-        statistics = [self.label.count(i) for i in range(5)]
-        ratio = 4   # n_train : n_dev = ratio : 1
-        for x in self.label:
-            pass
-            #print(x)
-
-    def make_validation_data(self, n_fold):
-        pass
+def to_indx(base, params, word_indx, label_indx, training):
         
+    with open(base + '.split.sent', 'r') as f:
+        parsed_sents = f.read().strip().split('\n\n')
+    sents = [[x.split('\t')[0] for x in psent.split('\n')] for psent in parsed_sents]
+    with open(base + '.label', 'r') as f:
+        labels = f.read().strip().split('\n')
 
-    def preprocess_train_data(self, word_vec_path):
-        w2v_model = KeyedVectors.load_word2vec_format(word_vec_path, binary=True)
-        # Initialize vectors of entities with vector of 'drug'
-        if True:
-            #entity_name = ['ENTITY1', 'ENTITY2', 'ENTITYOTHER']
-            entity_name = ['ENTITY1', 'ENTITY2']
-            for x in entity_name:
+    if params['mol2v_path'] is not None:
+        with open(base + '.dbid', 'r') as f:
+            dbids = f.read().strip().split('\n')
+        with open(params['dbid_dict_path'], 'rb') as f:
+            dbid_dict = pkl.load(f)
+        mol2v_table = np.load(params['mol2v_path'])
+        # Set unknown molecular vector to zero
+        dbid_dict['None'] = len(dbid_dict)
+        mol2v_table = np.concatenate((mol2v_table, np.zeros((1, mol2v_table.shape[1]))))
+    else:
+        mol2v_table = None
+
+    if training:
+        # Set paddig term index at 0
+        word_indx['<PAD>'] = 0
+
+        if params['w2v_path'] is None:
+            w2v_table = np.zeros((2, params['wemb_size']))
+        else:
+            w2v_model = KeyedVectors.load_word2vec_format(params['w2v_path'], binary=True)
+
+            # Initialize vectors of entities with vector of 'drug'
+            for x in ['DRUG1', 'DRUG2']:
                 w2v_model.vocab[x.lower()] = w2v_model.vocab['drug']
 
-        freq_dict = {}
-        index_dict = {}
-        word_vectors = []
+            w2v_table = np.zeros((len(w2v_model.vocab)+1, w2v_model.vector_size))
 
-        # Make word vectors (from Pretrained dataset)
-        for i, key in enumerate(w2v_model.vocab.keys()):
-            index_dict[key] = i
-            word_vectors.append(w2v_model.wv[key])
-        #print(len(word_vectors))
+            for k in w2v_model.vocab:
+                k = k.lower()
+                word_indx[k] = len(word_indx)
+                w2v_table[word_indx[k]] = w2v_model[k]
 
-        # Count frequencies of words in Train dataset
-        for sent in self.sentence:
+        word_freq = {}
+        for sent in sents:
             for word in sent:
                 word = word.lower()
-                if word not in freq_dict:
-                    freq_dict[word] = 1
+                # Count freq of words in train data
+                if word in word_freq:
+                    word_freq[word] += 1
                 else:
-                    freq_dict[word] += 1
+                    word_freq[word] = 1
 
-        index_array = np.zeros([len(sent_tr), args.max_sent_len], dtype='i')
-        label_array = np.array(label_tr)
-        ep_tr = np.array(entity_pos_tr)
-        mask_tr = np.zeros([len(sent_tr), args.max_sent_len], dtype='f')
-        sent_len_tr = np.zeros([len(sent_tr)], dtype='i')
-        # Word -> index (Train dataset)
-        # Add new words in Train dataset to index
-        for i, sent in enumerate(sent_tr):
-            for j, word in enumerate(sent):
-                word = word.lower()
-                if freq[word] > 1:
-                    if word not in index:
-                        n_new_train += 1
-                        index[word] = idx_low_freq + n_new_train
-                    index_tr[i][j] = index[word]
-                else:
-                    index_tr[i][j] = idx_low_freq
-            mask_tr[i][:len(sent)] = 1
+                # Add train data vocab to idex dict
+                if word not in word_indx:
+                    word_indx[word] = len(word_indx)
+        word_indx['<UNK>'] = len(word_indx)
 
-        # Initialize vectors of low_freq words and UNK words
-        # with mean of pretrained word vectors
-        unk_vector = np.mean(np.array(word_vectors), axis=0).tolist()
-        for i in range(1 + n_new_train):
-            word_vectors.append(unk_vector)
+        low_freq_words = [k for k, v in word_freq.items() if v <= params['lfw_threshold']]
+        for lfw in low_freq_words:
+            word_indx[lfw] = word_indx['<UNK>']
+            #word_indx[lfw] = len(word_indx)
 
-        w_v = np.array(word_vectors)
+        for label in labels:
+            if label not in label_indx:
+                label_indx[label] = len(label_indx)
 
-        self.freq = freq
-        self.index = index
-        self.word_vectors = word_vectors
+        # Initialize new word vectors with average of all pre-trained vectors
+        mean_pretrain = np.mean(w2v_table[1:], axis=0)
+        new_vec = np.tile(mean_pretrain, (len(word_indx)-len(w2v_table), 1))
+        w2v_table = np.concatenate((w2v_table, new_vec), axis=0)
 
-    def preprocess_test_data(self, train_data):
-        pass
+    else:
+        w2v_table = None
 
-def main(path_tr, path_te, args):
-    model = KeyedVectors.load_word2vec_format('../../W2V/w2v_PubMed2014_min10.bin', binary=True)
-
-    # Initialize vectors of entities with vector of 'drug'
-    if True:
-        #entity_name = ['ENTITY1', 'ENTITY2', 'ENTITYOTHER']
-        entity_name = ['ENTITY1', 'ENTITY2']
-        for x in entity_name:
-            model.vocab[x.lower()] = model.vocab['drug']
-
-    with open(path_tr, mode='r') as f_tr:
-        sent_tr, label_tr, entity_pos_tr, name_tr, _ = json.load(f_tr)
-    with open(path_te, mode='r') as f_te:
-        sent_te, label_te, entity_pos_te, name_te, _ = json.load(f_te)
-
-    freq = {}
-    index = {}
-    word_vectors = []
-
-    # Make word vectors (from Pretrained dataset)
-    for i, key in enumerate(model.vocab.keys()):
-        index[key] = i
-        word_vectors.append(model.wv[key])
-    #print(len(word_vectors))
-
-    # Count frequencies of words in Train dataset
-    for sent in sent_tr:
-        for word in sent:
-            word = word.lower()
-            if word not in freq:
-                freq[word] = 1
-            else:
-                freq[word] += 1
-
-    idx_low_freq = len(index)   # index of low frequency words
-    n_new_train = 0             # number of New words in Train dataset
-
-    index_tr = np.zeros([len(sent_tr), args.max_sent_len], dtype='i')
-    label_tr = np.array(label_tr)
-    ep_tr = np.array(entity_pos_tr)
-    mask_tr = np.zeros([len(sent_tr), args.max_sent_len], dtype='f')
-    sent_len_tr = np.zeros([len(sent_tr)], dtype='i')
-    # Word -> index (Train dataset)
-    # Add new words in Train dataset to index
-    for i, sent in enumerate(sent_tr):
+    # Array input
+    max_sent_len = params['max_sent_len']
+    #X = np.zeros((len(sents), 3 * max_sent_len)).astype('i')
+    X = np.zeros((len(sents), 3*max_sent_len+2)).astype('i')
+    for i, sent in enumerate(sents):
+        entity_position = [sent.index('DRUG1'), sent.index('DRUG2')]
         for j, word in enumerate(sent):
             word = word.lower()
-            if freq[word] > 1:
-                if word not in index:
-                    n_new_train += 1
-                    index[word] = idx_low_freq + n_new_train
-                index_tr[i][j] = index[word]
+            # Array word
+            if word in word_indx:
+                X[i, j] = word_indx[word]
             else:
-                index_tr[i][j] = idx_low_freq
-        mask_tr[i][:len(sent)] = 1
+                X[i, j] = word_indx['<UNK>']
+                #X[i, j] = len(word_indx)
+            # Array word position from target entity
+            X[i, j+max_sent_len] = j - entity_position[0] + max_sent_len
+            X[i, j+2*max_sent_len] = j - entity_position[1] + max_sent_len
 
-    # Initialize vectors of low_freq words and UNK words
-    # with mean of pretrained word vectors
-    unk_vector = np.mean(np.array(word_vectors), axis=0).tolist()
-    for i in range(1 + n_new_train):
-        word_vectors.append(unk_vector)
+        if params['mol2v_path'] is not None:
+            db1, db2 = dbids[i].split('\t')
+            try:
+                X[i, 3*max_sent_len] = dbid_dict[dbids[i].split('\t')[0]]
+            except:
+                print(dbids[i].split('\t')[0])
+            #X[i, 3*max_sent_len+1] = dbid_dict[dbids[i].split('\t')[1]]
+            
+    # Array label
+    Y = np.array([label_indx[l] for l in labels]).astype('i')
 
-    w_v = np.array(word_vectors)
-
-    index_te = np.zeros([len(sent_te), args.max_sent_len], dtype='i')
-    label_te = np.array(label_te)
-    ep_te = np.array(entity_pos_te)
-    mask_te = np.zeros([len(sent_te), args.max_sent_len], dtype='f')
-    sent_len_te = np.zeros([len(sent_te)], dtype='i')
-    # Word -> index (Test dataset)
-    # UNK word index is same as low frequency word index
-    for i, sent in enumerate(sent_te):
-        for j, word in enumerate(sent):
-            word = word.lower()
-            if word in index:
-                index_te[i][j] = index[word]
-            else:
-                index_te[i][j] = idx_low_freq
-        mask_te[i][:len(sent)] = 1
-
-    return [index_tr, label_tr, ep_tr, mask_tr, name_tr],\
-           [index_te, label_te, ep_te, mask_te, name_te],\
-           w_v 
+    return X, Y, w2v_table, mol2v_table

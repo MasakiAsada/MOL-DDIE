@@ -1,0 +1,13 @@
+'gcn_method' : 'nfp'
+'gcn_out_dim' : 50
+'gcn_hidden_dim' : 50
+'hidden_dim' : 200
+'learning_rate' : 0.001
+'batchsize' : 500
+'n_epoch' : 20
+'train_path' : '../instances/train.txt'
+'test_path' : '../instances/test.txt'
+'smiles_dict_path' : '../dicts/smiles_dict.pkl'
+'dbid_dict_path' : '../dicts/dbid_dict.pkl'
+'model_path' : '../models/nfp.npz'
+'mol2v_path' : '../dicts/mol2v.npy'

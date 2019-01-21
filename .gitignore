@@ -1,2 +1,21 @@
 # Corpus files
 *.xml
+
+# Brat format files
+*.txt
+*.ann
+
+# Preprocessed files
+*.sent
+*.split.sent
+*.label
+*.ent
+*.dbid
+*.pkl
+
+# Model file
+*.npz
+*.npy
+
+# GENIA tagger
+/geniatagger

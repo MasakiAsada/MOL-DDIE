@@ -1,0 +1,17 @@
+T1	DDI-DrugBank.d276.s0.e0
+T2	DDI-DrugBank.d276.s0.e1
+T3	DDI-DrugBank.d276.s0.e2
+R1	DDI-DrugBank.d276.s0.p2
+T4	DDI-DrugBank.d276.s1.e0
+T5	DDI-DrugBank.d276.s1.e1
+R2	DDI-DrugBank.d276.s1.p0
+T6	DDI-DrugBank.d276.s2.e0
+T7	DDI-DrugBank.d276.s2.e1
+T8	DDI-DrugBank.d276.s2.e2
+T9	DDI-DrugBank.d276.s2.e3
+R3	DDI-DrugBank.d276.s2.p2
+R4	DDI-DrugBank.d276.s2.p4
+R5	DDI-DrugBank.d276.s2.p5
+T10	DDI-DrugBank.d276.s3.e0
+T11	DDI-DrugBank.d276.s3.e1
+T12	DDI-DrugBank.d276.s4.e0

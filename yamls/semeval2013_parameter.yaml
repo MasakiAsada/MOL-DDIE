@@ -1,0 +1,20 @@
+'lfw_threshold' : 1
+'max_sent_len' : 160
+'l2_lambda' : 0.0001
+'learning_rate' : 0.001
+'batchsize' : 50
+'n_epoch' : 10
+'n_filter' : 100
+'window_size' : [3,5,7]
+'wemb_size' : 200
+'posemb_size' : 20
+'posemb_range' : 0.01
+'hidden_dim' : 500
+'averaging': true
+'train_path' : '../corpus/semeval2013/instances/train+dev'
+'test_path' : '../corpus/semeval2013/instances/test'
+'w2v_path' : '../../W2V/w2v_PubMed2014_min10.bin'
+#'w2v_path' : null
+'dbid_dict_path' : '../database/dicts/dbid_dict.pkl'
+'mol2v_path' : '../database/dicts/mol2v.npy'
+#'mol2v_path' : null

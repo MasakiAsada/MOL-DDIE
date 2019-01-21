@@ -1,31 +1,17 @@
-def count(y, t, r_d, p_d, p_n):
-    for i in range(len(t)):
-        if t[i] != 0:
-            r_d += 1.0
-        if y[i] != 0:
-            p_d += 1.0
-            if y[i] == t[i]:
-                p_n += 1.0
-    return r_d, p_d, p_n
+def calculate_microF(pred, gold, negative_indx):
+    numer, precision_denom, recall_denom = 0, 0, 0
 
-def calculate_microF(r_d, p_d, p_n):
-    P, R = p_n / (p_d + 0.00001), p_n / (r_d + 0.00001)
-    F = 2 * P * R / (P + R + 0.00001)
-    return P*100, R*100, F*100
+    for p, g in zip(pred, gold):
+        if p != negative_indx:
+            precision_denom += 1
+            if p == g:
+                numer += 1
+        if g != negative_indx:
+            recall_denom += 1
 
-def count_true(y, t):
-    pos = 0
-    '''
-    for i in range(len(t)):
-        if y[i] == t[i]:
-            pos += 1
-    return pos
-    '''
-    for i in range(len(t)):
-        if y[i] >= 0:
-            if 1 == t[i]:
-                pos += 1
-        else:
-            if -1 == t[i]:
-                pos += 1
-    return pos
+    precision = numer / (precision_denom + 0.00001)
+    recall = numer / (recall_denom + 0.00001)
+    microF = 2 * precision * recall / (precision + recall + 0.00001)
+
+    return precision, recall, microF
+

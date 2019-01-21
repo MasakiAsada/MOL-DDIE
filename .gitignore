@@ -4,6 +4,7 @@
 # Brat format files
 *.txt
 *.ann
+*.map
 
 # Preprocessed files
 *.sent
@@ -16,3 +17,7 @@
 # Model file
 *.npz
 *.npy
+
+# GENIA tagger
+corpus/semeval2013/geniatagger/
+

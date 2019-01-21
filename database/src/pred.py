@@ -4,29 +4,11 @@ import pickle as pkl
 import numpy as np
 
 from rdkit import Chem
-
 import chainer
-import chainer.links as L
-import chainer.functions as F
-from chainer import optimizers, cuda, Variable, serializers
-cp = cuda.cupy
-from chainer_chemistry.models import NFP, GGNN
-from chainer_chemistry.dataset.preprocessors import preprocess_method_dict
+from chainer import optimizers, cuda, serializers
 
 from model import DDIBinaryClassifier
-
-def get_max_n_atoms(data):
-    mols = [Chem.MolFromSmiles(x) for x in data]
-    n_atoms = [int(x.GetNumAtoms()) for x in mols]
-    return max(n_atoms)
-
-def prep_data(smiles, max_n_atom, method='nfp'):
-    mol = [Chem.MolFromSmiles(x) for x in smiles]
-    preprocessor = preprocess_method_dict[method](out_size=max_n_atom)
-    atoms = cp.array([preprocessor.get_input_features(x)[0] for x in mol])
-    adjs = cp.array([preprocessor.get_input_features(x)[1] for x in mol])
-
-    return atoms, adjs
+from utils prep_data, get_max_n_atoms
 
 if len(sys.argv) != 2:
     sys.stderr.write('Usage: python3 {} yamlfile'.format(sys.argv[0]))

@@ -15,13 +15,13 @@ python3 xml2inst.py $DRUGBANK_XML ../dicts/smiles_dict.pkl ../../corpus/semeval2
 cd ..
 ```
 
-## train gcn
+## train GCN
 ```
 cd src
-python3 run.py ../yamls/semeval2013_parameter.yaml
+python3 run.py ../yamls/drugbank_parameter.yaml
 ```
 
 ## make molecular vector table
 ```
-python3 pred.py ../yamls/semeval2013_parameter.yaml
+python3 pred.py ../yamls/drugbank_parameter.yaml
 ```

@@ -6,39 +6,13 @@ import numpy as np
 
 from rdkit import Chem
 import chainer
-import chainer.links as L
 import chainer.functions as F
 from chainer import optimizers, cuda, Variable, serializers
 cp = cuda.cupy
-from chainer_chemistry.models import NFP, GGNN
-from chainer_chemistry.dataset.preprocessors import preprocess_method_dict
 
-from utils import calculate_accuracy
+from utils import get_smiles, get_max_n_atoms, prep_data, calculate_accuracy
 from model import DDIBinaryClassifier
 
-def get_smiles(data, smiles_dict):
-    smiles1 = []
-    smiles2 = []
-    label = []
-    for l in data:
-        x, y = l.split('\t')
-        x1, x2 = x.split(':')
-        smiles1.append(smiles_dict[x1])
-        smiles2.append(smiles_dict[x2])
-        label.append(int(y))
-    return np.array(smiles1), np.array(smiles2), np.array(label).astype('i')
-    
-def get_max_n_atoms(data):
-    mols = [Chem.MolFromSmiles(x) for x in data]
-    n_atoms = [int(x.GetNumAtoms()) for x in mols]
-    return max(n_atoms)
-
-def prep_data(smiles, max_n_atom, method='nfp'):
-    mol = [Chem.MolFromSmiles(x) for x in smiles]
-    preprocessor = preprocess_method_dict[method](out_size=max_n_atom)
-    atoms = cp.array([preprocessor.get_input_features(x)[0] for x in mol])
-    adjs = cp.array([preprocessor.get_input_features(x)[1] for x in mol])
-    return atoms, adjs
 
 if len(sys.argv) != 2:
     sys.stderr.write('Usage: python3 {} yamlfile'.format(sys.argv[0]))
@@ -51,9 +25,9 @@ with open(params['smiles_dict_path'], 'rb') as f:
     smiles_dict = pkl.load(f)
 
 with open(params['train_path'], 'r') as f:
-    train = f.read().strip().split('\n')[:40000]
+    train = f.read().strip().split('\n')
 with open(params['test_path'], 'r') as f:
-    test = f.read().strip().split('\n')[:10000]
+    test = f.read().strip().split('\n')
 print('n_train={} n_test={}'.format(len(train), len(test)))
 smiles1tr, smiles2tr, labeltr = get_smiles(train, smiles_dict)
 smiles1te, smiles2te, labelte = get_smiles(test, smiles_dict)

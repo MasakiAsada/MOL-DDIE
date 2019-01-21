@@ -1,9 +1,9 @@
-'gcn_method' : 'nfp'
+'gcn_method' : 'ggnn'
 'gcn_out_dim' : 50
 'gcn_hidden_dim' : 50
 'hidden_dim' : 200
 'learning_rate' : 0.001
-'batchsize' : 500
+'batchsize' : 100
 'n_epoch' : 20
 'train_path' : '../instances/train.txt'
 'test_path' : '../instances/test.txt'

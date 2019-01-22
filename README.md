@@ -3,10 +3,10 @@ Implementation of Enhancing Drug-Drug Interaction Extraction from Texts by Molec
 
 # Usage
 ## Preparation of the corpus sets
-see [corpus/semeval2013/READEME.md]
+see [corpus/semeval2013/READEME.md](corpus/semeval2013/README.md)
 
 ## Perparation of the database
-see [database/README.md]
+see [database/README.md](database/README.md)
 
 ## DDI Extraction
 ```

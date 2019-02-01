@@ -28,8 +28,6 @@ label_indx = {}
 Xtr, Ytr, w2v, mol2v = to_indx(params['train_path'], params, word_indx, label_indx, training=True)
 Xte, Yte, _, _ = to_indx(params['test_path'], params, word_indx, label_indx, training=False)
 
-print(mol2v)
-
 params['out_dim'] = len(label_indx)
 model = RelationExtractor(params, w2v, mol2v)
 model.to_gpu()
@@ -40,6 +38,7 @@ store_model.init_params()
 optimizer = optimizers.Adam(params['learning_rate'])
 optimizer.setup(model)
 optimizer.add_hook(chainer.optimizer.WeightDecay(params['l2_lambda']))
+if mol2v is not None: model.molemb.disable_update()
 bs = params['batchsize']
 
 def train(X, Y):

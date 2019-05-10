@@ -19,5 +19,4 @@
 *.npy
 
 # GENIA tagger
-corpus/semeval2013/geniatagger/
-
+corpus/semeval2013/geniatagger-3.0.2/

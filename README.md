@@ -2,13 +2,13 @@
 Implementation of Enhancing Drug-Drug Interaction Extraction from Texts by Molecular Structure Information
 
 # Requirements
-python3
-chainer >= 4
-chainer_chemistry
-rdkit
-lxml
-pyyaml
-gensim
+python3  
+chainer >= 4  
+chainer_chemistry  
+rdkit  
+lxml  
+pyyaml  
+gensim  
 
 
 # Usage

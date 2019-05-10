@@ -3,12 +3,14 @@ import chainer.links as L
 import chainer.functions as F
 
 from cnn import CNN
+from deepcnn import DeepCNN
 
 class RelationExtractor(chainer.Chain):
     def __init__(self, params, w2v, mol2v):
         super(RelationExtractor, self).__init__()
         with self.init_scope():
-            self.cnn = CNN(params, w2v)
+            #self.cnn = CNN(params, w2v)
+            self.cnn = DeepCNN(params, w2v)
             self.hidden_dim = params['hidden_dim']
             self.out_dim = params['out_dim']
             self.mol2v = mol2v

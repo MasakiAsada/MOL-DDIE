@@ -1,7 +1,8 @@
-# Requirements
-* geniatagger
-
 # Usage
+
+## download dataset
+Ask task organizers and download datasets.
+Set paths, for exmaple, `export SEMEVAL_TRAIN_DIR=your train dir`, `export SEMEVAL_TEST_DIR=your test dir`.
 
 ## replace space to underscore
 ```
@@ -18,12 +19,13 @@ for i in ${SEMEVAL_TEST_DIR}/*.xml; python3 xml2brat.py $i brat_test/`basename $
 
 ## convert brat format to instance
 ```
-mkdir txtfiles
-python3 brat2inst.py bratfiles/train instances/train
-python3 brat2inst.py bratfiles/test instances/test
+mkdir instances
+python3 brat2inst.py brat_train instances/train
+python3 brat2inst.py brat_test instances/test
 ```
 
 ## split into words using GENIA tagger
+Download GENIA tagger from http://www.nactem.ac.uk/GENIA/tagger/
 ```
 cd geniatagger
 ./geniatagger ../instances/train.sent > ../instances/train.split.sent

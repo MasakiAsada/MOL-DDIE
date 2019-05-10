@@ -1,10 +1,9 @@
-# Requirements
-* RDKit
-* chainer
-* chainer-chemistry
-* lxml
-
 # Usage
+
+## download drugbank xml file
+Create drugbank account and download drugbank xml file.
+Set a path `export DRUGBANK_XML=your drugbank file`.
+
 ## preprocess
 ```
 cd preprocessors

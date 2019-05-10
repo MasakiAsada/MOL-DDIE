@@ -13,12 +13,13 @@ cp = cuda.cupy
 from preprocess import to_indx
 from model import RelationExtractor
 from cnn import CNN
+from deepcnn import DeepCNN
 from utils import calculate_microF
 
 
-if len(sys.argv) != 2:
-    sys.stderr.write('Usage: python3 %s yamlfile' % (sys.argv[0]))
-    sys.exit(-1)
+#if len(sys.argv) != 2:
+#    sys.stderr.write('Usage: python3 %s yamlfile' % (sys.argv[0]))
+#    sys.exit(-1)
 
 with open(sys.argv[1], 'r') as f:
     params = yaml.load(f)
@@ -30,7 +31,9 @@ Xte, Yte, _, _ = to_indx(params['test_path'], params, word_indx, label_indx, tra
 
 params['out_dim'] = len(label_indx)
 model = RelationExtractor(params, w2v, mol2v)
-model.to_gpu()
+gpu_device = int(sys.argv[2])
+cuda.get_device(gpu_device).use()
+model.to_gpu(gpu_device)
 average_model = copy.deepcopy(model)
 store_model = copy.deepcopy(model)
 store_model.init_params()
@@ -75,7 +78,11 @@ def test(X, Y):
                 p = model(x)
             loss = F.softmax_cross_entropy(p, y)
             losses += cuda.to_cpu(loss.data)
-            pred = F.argmax(p, axis=1)
+            b = 0.2
+            bias = b * F.cast(cp.eye(1, 5), 'f')
+            bias, _ = F.broadcast(bias, p)
+            #pred = F.argmax(p, axis=1)
+            pred = F.argmax(F.softmax(p)+bias, axis=1)
             P = np.concatenate((P, cuda.to_cpu(pred.data)))
 
     print('Test : elapsedtime={:.2f} loss={:.2f}'.format(time.time()-start, losses))

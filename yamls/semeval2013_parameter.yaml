@@ -13,8 +13,9 @@
 'averaging': true
 'train_path' : '../corpus/semeval2013/instances/train'
 'test_path' : '../corpus/semeval2013/instances/dev'
-'w2v_path' : '../../W2V/w2v_PubMed2014_min10.bin'
+#'w2v_path' : '../../W2V/w2v_PubMed2014_min10.bin'
+'w2v_path' : '../../PubMed2014_200_746.bin'
 #'w2v_path' : null
-'dbid_dict_path' : '../database/dicts/dbid_dict.pkl'
+#'dbid_dict_path' : '../database/dicts/dbid_dict.pkl'
 #'mol2v_path' : '../database/dicts/mol2v.npy'
 'mol2v_path' : null

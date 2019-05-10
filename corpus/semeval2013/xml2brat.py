@@ -47,7 +47,10 @@ for sentence in root:
     for pair in pairs:
         if pair.attrib['ddi'] == 'true':
             r_count += 1
-            ann_out.write('R{}\t{} Arg1:{} Arg2:{}\n'.format(r_count, pair.attrib['type'], entity_dict[pair.attrib['e1']], entity_dict[pair.attrib['e2']]))
+            try:
+                ann_out.write('R{}\t{} Arg1:{} Arg2:{}\n'.format(r_count, pair.attrib['type'], entity_dict[pair.attrib['e1']], entity_dict[pair.attrib['e2']]))
+            except:
+                print(sys.argv[2])
             map_out.write('R{}\t{}\n'.format(r_count, pair.attrib['id']))
 
 txt_out.close()
